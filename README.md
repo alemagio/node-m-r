@@ -7,14 +7,14 @@ Greg Young's simple CQRS example written using Node.js.
 
 ``` bash
   $ npm install
-  $ node src/application.js
+  $ npm run start
 ```
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Jan Van Ryswyck
+Copyright (c) 2021 Alessandro Magionami
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -32,3 +32,7 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Acknowledgements
+
+This is an update to the latest Node and Javascript features of [`node-m-r`](https://github.com/JanVanRyswyck/node-m-r).
