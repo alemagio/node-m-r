@@ -1,28 +1,29 @@
 'use strict';
 
-var stream = require('stream'),
-	_ = require('lodash'),
-    ConcurrencyViolationError = require('./errors').ConcurrencyViolationError;
+import {PassThrough} from 'stream'
+import _ from 'lodash'
+import {ConcurrencyViolationError} from './errors'
 
-var eventStore = (function() {
-	var _this = {},
-		_store = [];
+class EventStore {
+	constructor(store = []) {
+		this._store = store
+	}
 
-	_this.createDump = function() {
-		return _store;
-	};
+	createDump() {
+		return this._store
+	}
 
-	_this.getAllEventsFor = function(aggregateRootId, callback) {
-		findStoredDomainEvents(aggregateRootId, function(error, storedDocument) {
-			var eventStream;
+	getAllEventsFor(aggregateRootId, callback) {
+		this._findStoredDomainEvents(aggregateRootId, function(error, storedDocument) {
+			let eventStream;
 
 			if(error)
 				return callback(error);
-						
+
 			if(!storedDocument)
 				return callback();
 
-			eventStream = new stream.PassThrough({ objectMode: true });
+			eventStream = new PassThrough({ objectMode: true });
 
 			storedDocument.events.forEach(function(domainEvent) {
 				eventStream.write(domainEvent);
@@ -31,11 +32,11 @@ var eventStore = (function() {
 			eventStream.end();
 			callback(null, eventStream);
 		});
-	};
+	}
 
-	_this.save = function(domainEvents, aggregateRootId, expectedAggregateRootVersion, callback) {
-		findStoredDomainEvents(aggregateRootId, function(error, storedDocument) {
-			var storedDocument, concurrencyViolation;
+	save(domainEvents, aggregateRootId, expectedAggregateRootVersion, callback) {
+		this._findStoredDomainEvents(aggregateRootId, (error, storedDocument) => {
+			let concurrencyViolation;
 
 			if(error)
 				return callback(error);
@@ -46,7 +47,7 @@ var eventStore = (function() {
 					events: domainEvents
 				};
 
-				_store.push(storedDocument);
+				this._store.push(storedDocument);
 				return callback();
 			}
 
@@ -61,23 +62,21 @@ var eventStore = (function() {
 
 			callback();
 		});
-	};
+	}
 
-	function findStoredDomainEvents(aggregateRootId, callback) {
-		simulateAsynchronousIO(function() {
-			var storedDocument = _.find(_store, function(document) {
+	_findStoredDomainEvents(aggregateRootId, callback) {
+		simulateAsynchronousIO(() => {
+			const storedDocument = _.find(this._store, function(document) {
 				return document.id === aggregateRootId;
 			});
 
 			callback(null, storedDocument);
 		});
 	}
+}
 
-	function simulateAsynchronousIO(asynchronousAction) {
-		process.nextTick(asynchronousAction);
-	}
+function simulateAsynchronousIO(asynchronousAction) {
+	process.nextTick(asynchronousAction);
+}
 
-	return _this;
-})();
-
-module.exports = eventStore;
+export default new EventStore()

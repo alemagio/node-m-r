@@ -1,58 +1,33 @@
-'use strict';
+class CustomError extends Error {
+	constructor (name, message, error) {
+		this.error = error;
+		this.name = name;
 
-var util = require('util');
+		super(message)
+		super.captureStackTrace(this, arguments.callee);
+	}
+}
 
-//
-// InvalidOperationError
-//
-var InvalidOperationError = exports.InvalidOperationError = function(message, error) {
-	this.error = error;
-	this.name = 'InvalidOperationError';
+export class InvalidOperationError extends CustomError {
+	constructor(message, error) {
+		super('InvalidOperationError', message, error)
+	}
+}
 
-	Error.call(this, message);
-	Error.captureStackTrace(this, arguments.callee);
-};
+export class ConcurrencyViolationError extends CustomError {
+	constructor(message, error) {
+		super('ConcurrencyViolationError', message, error)
+	}
+}
 
-util.inherits(InvalidOperationError, Error);
+export class InvalidDataAreaError extends CustomError {
+	constructor(message, error) {
+		super('InvalidDataAreaError', message, error)
+	}
+}
 
-
-//
-// ConcurrencyError
-//
-var ConcurrencyViolationError = exports.ConcurrencyError = function(message, error) {
-	this.error = error;
-	this.name = 'ConcurrencyViolationError';
-
-	Error.call(this, message);
-	Error.captureStackTrace(this, arguments.callee);
-};
-
-util.inherits(ConcurrencyViolationError, Error);
-
-
-//
-// InvalidDataAreaError
-//
-var InvalidDataAreaError = exports.InvalidDataAreaError = function(message, error) {
-	this.error = error;
-	this.name = 'InvalidDataAreaError';
-
-	Error.call(this, message);
-	Error.captureStackTrace(this, arguments.callee);
-};
-
-util.inherits(InvalidDataAreaError, Error);
-
-
-//
-// ReportNotFoundError
-//
-var ReportNotFoundError = exports.ReportNotFoundError = function(message, error) {
-	this.error = error;
-	this.name = 'ReportNotFoundError';
-
-	Error.call(this, message);
-	Error.captureStackTrace(this, arguments.callee);
-};
-
-util.inherits(ReportNotFoundError, Error);
+export class ReportNotFoundError extends CustomError {
+	constructor(message, error) {
+		super('ReportNotFoundError', message, error)
+	}
+}

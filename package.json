@@ -3,13 +3,14 @@
   "description": "Greg Young's simple CQRS example written using Node.js (https://github.com/gregoryyoung/m-r).",
   "version": "0.1.0",
   "author": "Jan Van Ryswyck (http://elegantcode.com)",
+  "type": "module",
   "engines": {
     "node": "0.10.x"
   },
   "dependencies": {
+    "either.js": "~0.0.1",
     "eventemitter2": "~0.4.x",
-    "lodash": "~2.x.x",
-    "node-uuid": "~1.x.x",
-    "either.js": "~0.0.1"
+    "lodash": "^2.4.2",
+    "uuid": "^8.3.2"
   }
 }

@@ -1,14 +1,12 @@
-'use strict';
+import * as commandHandlers from './commandHandlers'
+import { v4 } from 'uuid'
+import _ from 'lodash'
+import eventStore from './eventStore'
+import reportDatabase from './reportDatabase'
 
-var uuidGenerator = require('node-uuid'),
-	_ = require('lodash'),
-	eventStore = require('./eventStore'),
-	reportDatabase = require('./reportDatabase'),
-	commandHandlers = require('./commandHandlers');
+import { bootstrap } from './bootstrapper'
 
-require('./bootstrapper').bootstrap();
-
-var inventoryItemId = uuidGenerator.v1();
+const inventoryItemId = v4();
 
 (function step01() {
 	console.log('======================================================');
@@ -62,7 +60,7 @@ function step03() {
 		numberOfItems: 7
 	};
 
-	commandHandlers.checkoutItemsFromInventory(command, function(error) {
+	commandHandlers.checkOutItemsFromInventory(command, function(error) {
 		if(error) {
 			console.log(error);
 			return;

@@ -1,24 +1,22 @@
-'use strict';
+import * as either from 'either.js'
+import * as _ from 'lodash'
+import {InvalidDataAreaError} from './errors'
 
-var either = require('either.js'),
-	_ = require('lodash'),
-	InvalidDataAreaError = require('./errors').InvalidDataAreaError;
+class ReportDatabase {
+	constructor () {
+		this._dataAreas = {
+			InventoryReports: [],
+			InventoryDetailsReports: []
+		}
+	}
 
-var reportDatabase = (function() {
-	var _this = {};
+	createDump () {
+		return this._dataAreas;
+	}
 
-	var _dataAreas = {
-		InventoryReports: [],
-		InventoryDetailsReports: []
-	};
-
-	_this.createDump = function() {
-		return _dataAreas;
-	};
-
-	_this.getReport = function(dataArea, id, callback) {
-		simulateAsynchronousIO(function() {
-			getReportsCollectionFor(dataArea).fold(
+	getReport (dataArea, id, callback) {
+		simulateAsynchronousIO(() => {
+			this._getReportsCollectionFor(dataArea).fold(
 				function left(error) {
 					callback(error);
 				},
@@ -31,25 +29,25 @@ var reportDatabase = (function() {
 				}
 			);
 		});
-	};
+	}
 
-	_this.insertReport = function(dataArea, inventoryReport, callback) {
-		simulateAsynchronousIO(function() {
-			getReportsCollectionFor(dataArea).fold(
-				function left(error) { 
-					callback(error); 
+	insertReport (dataArea, inventoryReport, callback) {
+		simulateAsynchronousIO(() => {
+			this._getReportsCollectionFor(dataArea).fold(
+				function left(error) {
+					callback(error);
 				},
 				function right(reportsCollection) {
 					reportsCollection.push(inventoryReport);
-					callback();		
+					callback();
 				}
 			);
 		});
-	};
+	}
 
-	_this.removeReport = function(dataArea, id, callback) {
-		simulateAsynchronousIO(function() {
-			getReportsCollectionFor(dataArea).fold(
+	removeReport (dataArea, id, callback) {
+		simulateAsynchronousIO(() => {
+			this._getReportsCollectionFor(dataArea).fold(
 				function left(error) {
 					callback(error);
 				},
@@ -62,22 +60,20 @@ var reportDatabase = (function() {
 				}
 			);
 		});
-	};
-
-	function simulateAsynchronousIO(asynchronousAction) {
-		process.nextTick(asynchronousAction);
 	}
 
-	function getReportsCollectionFor(dataArea) {
-		var reportsCollection = _dataAreas[dataArea];
+	_getReportsCollectionFor(dataArea) {
+		const reportsCollection = this._dataAreas[dataArea];
 
 		if(reportsCollection)
 			return either.right(reportsCollection);
 		else
 			return either.left(new InvalidDataAreaError('The specified data area is unknown.'));
 	}
+}
 
-	return _this;
-})();
+function simulateAsynchronousIO(asynchronousAction) {
+	process.nextTick(asynchronousAction);
+}
 
-module.exports = reportDatabase;
+export default new ReportDatabase()

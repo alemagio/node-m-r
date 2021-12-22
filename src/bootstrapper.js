@@ -1,12 +1,10 @@
-'use strict';
+import { InventoryReportAggregator, InventoryDetailsReportAggregator } from './reportAggregators'
+import messageBus from './messageBus'
 
-var reporting = require('./reportAggregators'),
-	messageBus = require('./messageBus');
-
-exports.bootstrap = function() {
-	var inventoryReportAggregator = new reporting.InventoryReportAggregator();
+export function bootstrap() {
+	var inventoryReportAggregator = new InventoryReportAggregator();
 	messageBus.registerEventHandler(inventoryReportAggregator);
 
-	var inventoryDetailsReportAggregator = new reporting.InventoryDetailsReportAggregator();
+	var inventoryDetailsReportAggregator = new InventoryDetailsReportAggregator();
 	messageBus.registerEventHandler(inventoryDetailsReportAggregator);
 };

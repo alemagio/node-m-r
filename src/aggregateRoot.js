@@ -1,58 +1,55 @@
-'use strict';
+import { EventEmitter } from 'events'
+import { Writable } from 'stream'
+import { v4 } from 'uuid'
+import { inherits } from 'util'
 
-var EventEmitter = require('eventemitter2').EventEmitter2,
-    util = require('util'),
-    stream = require('stream'),
-    uuidGenerator = require('node-uuid');
+export class AggregateRoot extends EventEmitter {
+	constructor (id) {
+		super()
+		this._id = id
+		this._version = this._eventVersion = 0;
+		this._transientEvents = [];
+		Writable.call(this, { objectMode: true });
 
-module.exports = AggregateRoot;
+		inherits(AggregateRoot, Writable)
+	}
 
-function AggregateRoot(id) {
-	this._id = id;
-	this._version = this._eventVersion = 0;
-	this._transientEvents = [];
+	apply (eventName, domainEvent) {
+		this._eventVersion += 1;
+		this._enhanceDomainEvent(eventName, domainEvent);
+		this._transientEvents.push(domainEvent);
+		this.emit(eventName, domainEvent);
+	}
 
-	this._eventEmitter = new EventEmitter();
-	stream.Writable.call(this, { objectMode: true });	
-};
+	getTransientEvents () {
+		return this._transientEvents;
+	}
 
-util.inherits(AggregateRoot, stream.Writable);
+	getId () {
+		return this._id;
+	}
 
-AggregateRoot.prototype.apply = function(eventName, domainEvent) {
-	this._eventVersion += 1;
-	enhanceDomainEvent(this, eventName, this._eventVersion, domainEvent);
+	getVersion () {
+		return this._version;
+	};
 
-	this._transientEvents.push(domainEvent);
-	this._eventEmitter.emit(eventName, domainEvent);
-};
+	onEvent (type, listener) {
+		return this.on(type, listener);
+	}
 
-AggregateRoot.prototype.getTransientEvents = function() {
-	return this._transientEvents;
-};
+	_write (domainEvent, encoding, next) {
+		this.emit(domainEvent.eventName, domainEvent);
 
-AggregateRoot.prototype.getId = function() {
-	return this._id;
-};
+		this._eventVersion += 1;
+		this._version += 1;
+		next();
+	}
 
-AggregateRoot.prototype.getVersion = function() {
-	return this._version;
-};
 
-AggregateRoot.prototype.onEvent = function(type, listener) {
-	return this._eventEmitter.on(type, listener);
-};
-
-AggregateRoot.prototype._write = function(domainEvent, encoding, next) {
-	this._eventEmitter.emit(domainEvent.eventName, domainEvent);
-	
-	this._eventVersion += 1;
-	this._version += 1;
-	next();
-};
-
-function enhanceDomainEvent(aggregateRoot, eventName, eventVersion, domainEvent) {
-	domainEvent.aggregateRootId = aggregateRoot._id;
-	domainEvent.eventId = uuidGenerator.v1();
-	domainEvent.eventName = eventName;
-	domainEvent.eventVersion = eventVersion;
+	_enhanceDomainEvent(eventName, domainEvent) {
+		domainEvent.aggregateRootId = this._id;
+		domainEvent.eventId = v4();
+		domainEvent.eventName = eventName;
+		domainEvent.eventVersion = this._eventVersion;
+	}
 }

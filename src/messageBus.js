@@ -1,22 +1,19 @@
-'use strict';
+class MessageBus {
+	constructor(eventHandlers = []) {
+		this._eventHandlers = eventHandlers
+	}
 
-var messageBus = (function() {
-	var _this = {},
-		_eventHandlers = [];
+	registerEventHandler(eventHandler) {
+		this._eventHandlers.push(eventHandler)
+	}
 
-	_this.registerEventHandler = function(eventHandler) {
-		_eventHandlers.push(eventHandler);
-	};
-
-	_this.publish = function(domainEvent) {
-		_eventHandlers.forEach(function(eventHandler) {
+	publish(domainEvent) {
+		this._eventHandlers.forEach(function(eventHandler) {
 			process.nextTick(function() {
-				eventHandler.write(domainEvent);	
+				eventHandler.write(domainEvent);
 			});
 		});
-	};
+	}
+}
 
-	return _this;
-})();
-
-module.exports = messageBus;
+export default new MessageBus()
